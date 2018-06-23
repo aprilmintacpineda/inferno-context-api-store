@@ -37,7 +37,7 @@ First, import `inferno-context-api-store` as `Provider`. The Provider is a compo
 ```jsx
 import { render, Component } from 'inferno';
 import { HashRouter, Route, Link, Switch } from 'inferno-router';
-import Provider from 'inferno-context-api-store/lib';
+import Provider from 'inferno-context-api-store';
 
 import routes from './routes';
 
