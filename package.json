@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "babel src --out-dir lib/",
-    "lint": "eslint src/**/*.js __tests__/**/*.js"
+    "lint": "eslint src/**/*.js __tests__/**/*.js",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",

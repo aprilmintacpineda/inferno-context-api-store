@@ -1,8 +1,9 @@
+import { Component } from 'inferno';
 import createInfernoContext from 'create-inferno-context';
 
-const StoreContext = createInfernoContext;
+const StoreContext = createInfernoContext();
 
-const connect = (wantedState, wantedMutators) => WrappedComponent => class Connect extends React.Component {
+const connect = (wantedState, wantedMutators) => WrappedComponent => class Connect extends Component {
   dispatcher = (updateStore, storeState, action) => (...payload) => action(
     {
       state: { ...storeState },
@@ -35,7 +36,7 @@ const connect = (wantedState, wantedMutators) => WrappedComponent => class Conne
   )
 };
 
-class Provider extends React.Component {
+class Provider extends Component {
   state = { ...this.props.store };
 
   updateState = updatedState => this.setState({

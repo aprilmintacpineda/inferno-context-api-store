@@ -1,11 +1,9 @@
 {
   "presets": [
     "env",
-    "react",
     "flow"
   ],
   "plugins": [
-    "transform-react-jsx",
     "transform-object-rest-spread",
     "transform-class-properties",
     "babel-plugin-inferno",
