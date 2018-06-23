@@ -1,6 +1,6 @@
 import { Component } from 'inferno';
 import PropTypes from 'prop-types';
-import { connect } from '../lib';
+import { connect } from 'inferno-context-api-store';
 
 import { changeUsername } from '../store';
 
