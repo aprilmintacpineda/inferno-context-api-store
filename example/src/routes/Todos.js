@@ -1,10 +1,10 @@
-import React from 'react';
+import { Component } from 'inferno';
 import PropTypes from 'prop-types';
-import { connect } from 'react-context-api-store';
+import { connect } from '../lib';
 
 import { updateTodoDone, deleteTodo, addTodo } from '../store';
 
-class Todos extends React.Component {
+class Todos extends Component {
   state = {
     newTodoValue: ''
   }
@@ -23,7 +23,7 @@ class Todos extends React.Component {
         <input
           type="text"
           value={this.state.newTodoValue}
-          onChange={e => this.setState({
+          onInput={e => this.setState({
             newTodoValue: e.target.value
           })}
         />

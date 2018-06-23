@@ -1,10 +1,10 @@
-import React from 'react';
+import { Component } from 'inferno';
 import PropTypes from 'prop-types';
-import { connect } from 'react-context-api-store';
+import { connect } from '../lib';
 
 import { changeUsername } from '../store';
 
-class Home extends React.Component {
+class Home extends Component {
   render () {
     return (
       <div>
@@ -12,7 +12,7 @@ class Home extends React.Component {
         <input
           type="text"
           placeholder="change username..."
-          onChange={e => this.props.changeUsername(e.target.value)}
+          onInput={e => this.props.changeUsername(e.target.value)}
         />
         {
           this.props.todos.map((todo, i) =>

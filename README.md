@@ -1,8 +1,8 @@
 # Repo status?
 This library is actively being maintained by the developer. Feature requests, enhancements, and bug reports are all welcome to the issue section.
 
-# react-context-api-store
-Seemless, light weight, state management library that comes with asynchronous support out of the box. Inspired by Redux and Vuex. Built on top of React's context api.
+# inferno-context-api-store
+Seemless, light weight, state management library that comes with asynchronous support out of the box. Inspired by Redux and Vuex. Built on top of [inferno-create-context](https://github.com/kurdin/create-inferno-context).
 
 # File size?
 5kb transpiled, not minified.
@@ -11,15 +11,15 @@ Seemless, light weight, state management library that comes with asynchronous su
 When you want a state management that's small and supports asynchronous actions out of the box.
 
 # Example
-https://aprilmintacpineda.github.io/react-context-api-store/#/
+https://aprilmintacpineda.github.io/inferno-context-api-store/#/
 
 # Guide
 
 ## Install
 
 ```
-npm install react-context-api-store
-yarn add react-context-api-store
+npm install inferno-context-api-store
+yarn add inferno-context-api-store
 ```
 
 ## Usage
@@ -32,19 +32,22 @@ Make sure to read and understand all the notes here after as they convey a very 
 
 #### The `Provider`
 
-First, import `react-context-api-store` as `Provider`. The Provider is a component that accepts a prop called `store`. You would use this component as your top most component.
+First, import `inferno-context-api-store` as `Provider`. The Provider is a component that accepts a prop called `store`. You would use this component as your top most component.
 
 ```jsx
-import React from 'react';
-import { render } from 'react-dom';
-import { BrowserRouter, Route, Link, Switch } from 'react-router-dom';
-import Provider from 'react-context-api-store';
+import { render, Component } from 'inferno';
+import { HashRouter, Route, Link, Switch } from 'inferno-router';
+import Provider from './lib';
 
-class App extends React.Component {
+import routes from './routes';
+
+import store from './store';
+
+class App extends Component {
   render () {
     return (
       <Provider store={store}>
-        <BrowserRouter>
+        <HashRouter>
           <div>
             <ul>
               <li>
@@ -60,7 +63,7 @@ class App extends React.Component {
               }
             </Switch>
           </div>
-        </BrowserRouter>
+        </HashRouter>
       </Provider>
     );
   }
@@ -95,9 +98,9 @@ The provider always assume that the store is an object. No checks were added to 
 
 #### Connecting a component to the store
 
-Works the same way as with redux, with a little bit of change. You import `{ connect }` from the `react-context-api-store` package. Connect is an HOC that wraps your component with the `Provider.Consumer` and passes all the states and actions to the component as properties.
+Works the same way as with redux, with a little bit of change. You import `{ connect }` from the `inferno-context-api-store` package. Connect is an HOC that wraps your component with the `Provider.Consumer` and passes all the states and actions to the component as properties.
 
-`Connect` accepts two parameters. The first parameter is a `callback function` that will receive the `store's current state`. It should return an object that maps all the states that you want the component to have.
+`connect` accepts two parameters. The first parameter is a `callback function` that will receive the `store's current state`. It should return an object that maps all the states that you want the component to have.
 
 ###### Note
 
@@ -155,9 +158,9 @@ const actions = {
 Over all, you'll have something like this:
 
 ```jsx
-import React from 'react';
+import { Component } from 'inferno';
 import PropTypes from 'prop-types';
-import { connect } from 'react-context-api-store';
+import { connect } from '../lib';
 
 /**
  * in this example, all the action handlers are in the
@@ -167,7 +170,7 @@ import { connect } from 'react-context-api-store';
  */
 import { updateTodoDone, deleteTodo, addTodo } from '../store';
 
-class Todos extends React.Component {
+class Todos extends Component {
   state = {
     newTodoValue: ''
   }
@@ -186,7 +189,7 @@ class Todos extends React.Component {
         <input
           type="text"
           value={this.state.newTodoValue}
-          onChange={e => this.setState({
+          onInput={e => this.setState({
             newTodoValue: e.target.value
           })}
         />
@@ -237,6 +240,14 @@ class Todos extends React.Component {
   }
 }
 
+Todos.propTypes = {
+  userState: PropTypes.object.isRequired,
+  todos: PropTypes.arrayOf(PropTypes.object).isRequired,
+  updateTodoDone: PropTypes.func.isRequired,
+  deleteTodo: PropTypes.func.isRequired,
+  addTodo: PropTypes.func.isRequired
+};
+
 export default connect(store => ({
   userState: store.userState,
   todos: store.todos
@@ -285,3 +296,7 @@ function myStateHandler (store, data) {
   });
 }
 ```
+
+# Related
+
+- [react-context-api-store](https://github.com/aprilmintacpineda/react-context-api-store) react compatible version of the same thing.
