@@ -5,7 +5,7 @@ This library is actively being maintained by the developer. Feature requests, en
 Seemless, lightweight, state management library that supports async actions and state persisting out of the box. Inspired by Redux and Vuex. Built on top of [inferno-create-context](https://github.com/kurdin/create-inferno-context).
 
 # File size?
-5kb transpiled, not minified.
+6.8kb transpiled, not minified.
 
 # Use case
 When you want a state management that's small and supports asynchronous actions out of the box.

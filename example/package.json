@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "inferno": "^5.1.1",
-    "inferno-context-api-store": "^1.0.3",
+    "inferno-context-api-store": "^1.0.10",
     "inferno-router": "^5.1.1",
     "inferno-scripts": "6.3.0"
   },
