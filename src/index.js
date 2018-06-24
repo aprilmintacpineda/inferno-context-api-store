@@ -1,4 +1,5 @@
 import { Component } from 'inferno';
+import PropTypes from 'prop-types';
 import createInfernoContext from 'create-inferno-context';
 
 const StoreContext = createInfernoContext();
@@ -38,11 +39,35 @@ const connect = (wantedState, wantedMutators) => WrappedComponent => class Conne
 
 class Provider extends Component {
   state = { ...this.props.store };
+  persisted = false
 
-  updateState = updatedState => this.setState({
-    ...this.state,
-    ...updatedState
-  })
+  updateState = updatedState => {
+    const newState = {
+      ...this.state,
+      ...updatedState
+    };
+
+    this.setState(newState);
+
+    if (this.props.persist !== false) {
+      this.props.persist.storage.removeItem(this.props.persist.key || 'inferno-context-api-store');
+      this.props.persist.storage.setItem(
+        this.props.persist.key || 'inferno-context-api-store',
+        JSON.stringify(newState)
+      );
+    }
+  }
+
+  componentDidMount () {
+    if (this.props.persist !== false && !this.persisted) {
+      this.persisted = true;
+      const savedStore = this.props.persist.storage.getItem(
+        this.props.persist.key || 'inferno-context-api-store'
+      );
+
+      this.updateState(savedStore? this.props.persist.statesToPersist(JSON.parse(savedStore)) : {});
+    }
+  }
 
   render = () => (
     <StoreContext.Provider value={{
@@ -54,6 +79,23 @@ class Provider extends Component {
   )
 };
 
-export { StoreContext };
+Provider.propTypes = {
+  children: PropTypes.element.isRequired,
+  store: PropTypes.object.isRequired,
+  persist: PropTypes.oneOfType([
+    PropTypes.shape({
+      storage: PropTypes.object.isRequired,
+      statesToPersist: PropTypes.func.isRequired,
+      saveInitialState: PropTypes.bool,
+      key: PropTypes.string
+    }),
+    PropTypes.oneOf([false])
+  ])
+};
+
+Provider.defaultProps = {
+  persist: false
+};
+
 export { connect };
 export default Provider;

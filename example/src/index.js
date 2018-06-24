@@ -1,6 +1,6 @@
 import { render, Component } from 'inferno';
 import { HashRouter, Route, Link, Switch } from 'inferno-router';
-import Provider from 'inferno-context-api-store';
+import Provider from './lib';
 
 import routes from './routes';
 
@@ -9,7 +9,14 @@ import store from './store';
 class App extends Component {
   render () {
     return (
-      <Provider store={store}>
+      <Provider store={store} persist={{
+        storage: localStorage,
+        statesToPersist (savedStore) {
+          return {
+            userState: { ...savedStore.userState }
+          };
+        }
+      }}>
         <HashRouter>
           <div>
             <ul>

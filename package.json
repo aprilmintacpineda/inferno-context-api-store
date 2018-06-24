@@ -4,8 +4,8 @@
   "description": "Seemless, light weight, state management library that comes with asynchronous support out of the box. Inspired by Redux and Vuex. Built on top of create-inferno-context.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel src --out-dir lib/",
+    "test": "npm run build && jest --coverage --updateSnapshot",
+    "build": "babel src --out-dir lib && cp lib/index.js example/src/lib.js",
     "lint": "eslint src/**/*.js __tests__/**/*.js",
     "prepublish": "npm run build"
   },
@@ -34,7 +34,8 @@
   "homepage": "https://github.com/aprilmintacpineda/inferno-context-api-store#readme",
   "dependencies": {
     "create-inferno-context": "^0.2.4",
-    "inferno": "^5.1.1"
+    "inferno": "^5.1.1",
+    "prop-types": "^15.6.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -46,6 +47,7 @@
     "babel-preset-env": "^1.7.0",
     "babel-preset-flow": "^6.23.0",
     "babel-preset-react": "^6.24.1",
-    "eslint": "^4.19.1"
+    "eslint": "^4.19.1",
+    "eslint-plugin-inferno": "^7.8.0"
   }
 }

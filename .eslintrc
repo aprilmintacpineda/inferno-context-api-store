@@ -9,6 +9,9 @@
       "jsx": true
     }
   },
+  "extends": [
+    "plugin:inferno/recommended"
+  ],
   "rules": {
     "no-duplicate-imports": ["error", {
         "includeExports": true

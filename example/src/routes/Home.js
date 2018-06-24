@@ -1,6 +1,6 @@
 import { Component } from 'inferno';
 import PropTypes from 'prop-types';
-import { connect } from 'inferno-context-api-store';
+import { connect } from '../lib';
 
 import { changeUsername } from '../store';
 
@@ -9,6 +9,7 @@ class Home extends Component {
     return (
       <div>
         <h1>Your username is: {this.props.userState.username}</h1>
+        <p>I am using the persist feature to persist your username but not your todos.</p>
         <input
           type="text"
           placeholder="change username..."
