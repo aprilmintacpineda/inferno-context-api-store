@@ -2,7 +2,7 @@
 This library is actively being maintained by the developer. Feature requests, enhancements, and bug reports are all welcome to the issue section.
 
 # inferno-context-api-store
-Seemless, lightweight, state management library that comes with asynchronous support out of the box. Inspired by Redux and Vuex. Built on top of [inferno-create-context](https://github.com/kurdin/create-inferno-context).
+Seemless, lightweight, state management library that supports async actions and state persisting out of the box. Inspired by Redux and Vuex. Built on top of [inferno-create-context](https://github.com/kurdin/create-inferno-context).
 
 # File size?
 5kb transpiled, not minified.
@@ -296,6 +296,44 @@ function myStateHandler (store, data) {
   });
 }
 ```
+
+## Persisting states
+
+If you want to persist states, just provide a second property called `persist` which is an object that has the following shape:
+
+```js
+{
+  storage: AsyncStorage, // the storage of where to save the state
+  statesToPersist: savedStore => {
+    // do whatever you need to do here
+    // then return the states that you want to save.
+    // NOTE: This is not strict, meaning, you can even
+    // create a new state here and it will still be saved
+    return {
+      someState: { ...savedStore.someState },
+      anotherState: [ ...savedStore.anotherState ],
+      someValue: savedStore.someValue
+    }
+  }
+}
+```
+
+**example snippet**
+
+```jsx
+<Provider store={store} persist={{
+  storage: window.localStorage,
+  statesToPersist (savedStore) {
+    return { ...savedStore };
+  }
+}}>
+```
+
+In this case I'm passing in the `window.localStorage` as the storage but you are free to use whatever storage you need but it must have the following methods:
+
+- `getItem` which receives the `key` as the first parameter.
+- `setItem` which receives the `key` as the first parameter and `value` as the second parameter.
+- `removeItem` which receives the `key` as the first parameter.
 
 # Related
 
