@@ -31,7 +31,7 @@ const connect = (wantedState, wantedMutators) => WrappedComponent => class Conne
         <WrappedComponent
           {...this.mapStateToProps(context.state)}
           {...this.mapActionsToProps(context.updateState, context.state)}
-        />
+          {...this.props} />
       }
     </StoreContext.Consumer>
   )
