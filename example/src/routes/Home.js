@@ -6,8 +6,6 @@ import { changeUsername } from '../store';
 
 class Home extends Component {
   render () {
-    console.log('home props', this.props);
-
     return (
       <div>
         <h1>Your username is: {this.props.userState.username}</h1>

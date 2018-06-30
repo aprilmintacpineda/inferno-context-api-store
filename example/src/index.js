@@ -13,7 +13,7 @@ class App extends Component {
         storage: localStorage,
         statesToPersist (savedStore) {
           return {
-            userState: { ...savedStore.userState }
+            userState: savedStore.userState || store.userState
           };
         }
       }}>

@@ -1,10 +1,10 @@
 {
   "name": "inferno-context-api-store",
   "version": "1.0.13",
-  "description": "Seemless, light weight, state management library that comes with asynchronous support out of the box. Inspired by Redux and Vuex. Built on top of create-inferno-context.",
+  "description": "Seemless, lightweight, state management library that supports async actions and state persisting out of the box. Inspired by Redux and Vuex. Inspired by Redux and Vuex. Built on top of create-inferno-context.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "npm run build && jest --coverage --updateSnapshot",
+    "test": "clear && npm run build && jest --coverage --updateSnapshot",
     "build": "babel src --out-dir lib && cp lib/index.js example/src/lib.js",
     "lint": "eslint src/**/*.js __tests__/**/*.js",
     "prepublish": "npm run build"
@@ -18,7 +18,8 @@
     "state-management",
     "inferno-create-context",
     "store",
-    "global-states"
+    "global-states",
+    "inferno"
   ],
   "files": [
     "lib/*",
@@ -35,6 +36,7 @@
   "dependencies": {
     "create-inferno-context": "^0.2.4",
     "inferno": "^5.1.1",
+    "mock-dom-resources": "^9.0.0",
     "prop-types": "^15.6.2"
   },
   "devDependencies": {

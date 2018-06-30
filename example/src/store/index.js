@@ -48,7 +48,7 @@ export function changeUsername (store, updatedUsername) {
 export function updateTodoDone (store, isDone, targetValue, targetIndex) {
   store.updateStore({
     todos: store.state.todos.map((todo, todoIndex) => {
-      if (todo.value != targetValue || todoIndex != targetIndex) return todo;
+      if (todo.value !== targetValue || todoIndex !== targetIndex) return todo;
 
       return {
         ...todo,
@@ -60,7 +60,7 @@ export function updateTodoDone (store, isDone, targetValue, targetIndex) {
 
 export function deleteTodo (store, targetValue, targetIndex) {
   store.updateStore({
-    todos: store.state.todos.filter((todo, todoIndex) => todo.value != targetValue || todoIndex != targetIndex)
+    todos: store.state.todos.filter((todo, todoIndex) => todo.value !== targetValue || todoIndex !== targetIndex)
   });
 }
 
