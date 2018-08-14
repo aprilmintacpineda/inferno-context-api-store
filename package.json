@@ -1,6 +1,6 @@
 {
   "name": "inferno-context-api-store",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Seemless, lightweight, state management library that supports async actions and state persisting out of the box. Inspired by Redux and Vuex. Inspired by Redux and Vuex. Built on top of create-inferno-context.",
   "main": "lib/index.js",
   "scripts": {
