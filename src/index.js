@@ -47,8 +47,8 @@ class Provider extends Component {
   constructor (props) {
     super(props);
 
-    this.defferedState = {};
-    this.defferedStateChangeTimer = null;
+    this.deferredState = {};
+    this.deferredStateChangeTimer = null;
 
     if (this.props.persist !== false) {
       const savedStore = this.props.persist.storage.getItem(
@@ -80,7 +80,7 @@ class Provider extends Component {
     this.setState(
       {
         ...this.state,
-        ...this.defferedState
+        ...this.deferredState
       },
       () => {
         this.persist();
@@ -93,17 +93,17 @@ class Provider extends Component {
       value={{
         state: { ...this.state },
         updateStore: (updatedStore, callback) => {
-          this.defferedState = {
-            ...this.defferedState,
+          this.deferredState = {
+            ...this.deferredState,
             ...updatedStore
           };
 
-          if (this.defferedStateChangeTimer) {
-            clearTimeout(this.defferedStateChangeTimer);
-            this.defferedStateChangeTimer = null;
+          if (this.deferredStateChangeTimer) {
+            clearTimeout(this.deferredStateChangeTimer);
+            this.deferredStateChangeTimer = null;
           }
 
-          this.defferedStateChangeTimer = setTimeout(() => this.storeUpdater(callback), 20);
+          this.deferredStateChangeTimer = setTimeout(() => this.storeUpdater(callback), 20);
         }
       }}>
       {this.props.children}

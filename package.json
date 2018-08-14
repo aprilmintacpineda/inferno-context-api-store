@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "clear && npm run build && jest --coverage --updateSnapshot",
-    "build": "babel-node build.js",
+    "build": "babel-node build.js && cp lib/index.js example/src/lib.js",
     "eslint": "eslint src/**/*.js __tests__/**/*.js --fix",
     "prettier": "prettier \"src/**/*.js\" --write",
     "lint": "npm run prettier && npm run eslint",
