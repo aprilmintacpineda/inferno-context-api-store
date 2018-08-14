@@ -1,16 +1,19 @@
+<!-- @format -->
+
 # Repo status?
+
 This library is actively being maintained by the developer. Feature requests, enhancements, and bug reports are all welcome to the issue section.
 
 # inferno-context-api-store
+
 Seemless, lightweight, state management library that supports async actions and state persisting out of the box. Inspired by Redux and Vuex. Built on top of [inferno-create-context](https://github.com/kurdin/create-inferno-context).
 
-# File size?
-6.8kb transpiled. Not minified. Not compressed. Not uglified.
-
 # Use case
+
 When you want a state management that's small and supports asynchronous actions out of the box.
 
 # Example
+
 https://aprilmintacpineda.github.io/inferno-context-api-store/#/
 
 # Guide
@@ -44,7 +47,7 @@ import routes from './routes';
 import store from './store';
 
 class App extends Component {
-  render () {
+  render() {
     return (
       <Provider store={store}>
         <HashRouter>
@@ -58,9 +61,9 @@ class App extends Component {
               </li>
             </ul>
             <Switch>
-              {
-                routes.map((route, i) => <Route key={i} {...route} />)
-              }
+              {routes.map((route, i) => (
+                <Route key={i} {...route} />
+              ))}
             </Switch>
           </div>
         </HashRouter>
@@ -69,10 +72,7 @@ class App extends Component {
   }
 }
 
-render(
-  <App />,
-  document.querySelector('#app')
-);
+render(<App />, document.querySelector('#app'));
 ```
 
 #### The `store`
@@ -136,11 +136,11 @@ The second parameter is an object containing all the functions that will serve a
   type="checkbox"
   checked={todo.isDone}
   onChange={e => this.props.updateTodoDone(e.target.checked, todo.value, i)}
-/>
+/>;
 
 // the second parameter
 const actions = {
-  updateTodoDone (store, isDone, targetValue, targetIndex) {
+  updateTodoDone(store, isDone, targetValue, targetIndex) {
     store.updateStore({
       todos: store.state.todos.map((todo, todoIndex) => {
         if (todo.value != targetValue || todoIndex != targetIndex) return todo;
@@ -152,7 +152,7 @@ const actions = {
       })
     });
   }
-}
+};
 ```
 
 Over all, you'll have something like this:
@@ -173,15 +173,17 @@ import { updateTodoDone, deleteTodo, addTodo } from '../store';
 class Todos extends Component {
   state = {
     newTodoValue: ''
-  }
+  };
 
-  handleNewTodoSubmit = (e) => {
+  handleNewTodoSubmit = e => {
     e.preventDefault();
 
-    return this.props.addTodo(this.state.newTodoValue, () => this.setState({
-      newTodoValue: ''
-    }));
-  }
+    return this.props.addTodo(this.state.newTodoValue, () =>
+      this.setState({
+        newTodoValue: ''
+      })
+    );
+  };
 
   addTodoForm = () => {
     return (
@@ -189,16 +191,18 @@ class Todos extends Component {
         <input
           type="text"
           value={this.state.newTodoValue}
-          onInput={e => this.setState({
-            newTodoValue: e.target.value
-          })}
+          onInput={e =>
+            this.setState({
+              newTodoValue: e.target.value
+            })
+          }
         />
         <input type="submit" value="Add todo" />
       </form>
     );
-  }
+  };
 
-  render () {
+  render() {
     if (!this.props.todos.length) {
       return (
         <div>
@@ -211,30 +215,40 @@ class Todos extends Component {
     return (
       <div>
         {this.addTodoForm()}
-        <h1>Hi {this.props.userState.username}, {'here\'s your todo list'}.</h1>
-        {
-          this.props.todos.map((todo, i) =>
-            <div key={i} style={{ marginBottom: '10px' }}>
-              <span
-                style={{ cursor: 'pointer', userSelect: 'none', backgroundColor: 'red', color: 'white', marginRight: '2px', borderRadius: '2px', padding: '1px' }}
-                onClick={() => this.props.deleteTodo(todo.value, i)}>x</span>
-              <label style={{ cursor: 'pointer', userSelect: 'none' }}>
-                <input
-                  type="checkbox"
-                  checked={todo.isDone}
-                  onChange={e => this.props.updateTodoDone(e.target.checked, todo.value, i)}
-                />
-                {
-                  todo.isDone?
-                    <span style={{ color: 'red', textDecoration: 'line-through' }}>
-                      <span style={{ color: 'gray' }}>{todo.value}</span>
-                    </span>
-                  : <span>{todo.value}</span>
-                }
-              </label>
-            </div>
-          )
-        }
+        <h1>
+          Hi {this.props.userState.username}, {"here's your todo list"}.
+        </h1>
+        {this.props.todos.map((todo, i) => (
+          <div key={i} style={{ marginBottom: '10px' }}>
+            <span
+              style={{
+                cursor: 'pointer',
+                userSelect: 'none',
+                backgroundColor: 'red',
+                color: 'white',
+                marginRight: '2px',
+                borderRadius: '2px',
+                padding: '1px'
+              }}
+              onClick={() => this.props.deleteTodo(todo.value, i)}>
+              x
+            </span>
+            <label style={{ cursor: 'pointer', userSelect: 'none' }}>
+              <input
+                type="checkbox"
+                checked={todo.isDone}
+                onChange={e => this.props.updateTodoDone(e.target.checked, todo.value, i)}
+              />
+              {todo.isDone ? (
+                <span style={{ color: 'red', textDecoration: 'line-through' }}>
+                  <span style={{ color: 'gray' }}>{todo.value}</span>
+                </span>
+              ) : (
+                <span>{todo.value}</span>
+              )}
+            </label>
+          </div>
+        ))}
       </div>
     );
   }
@@ -248,22 +262,25 @@ Todos.propTypes = {
   addTodo: PropTypes.func.isRequired
 };
 
-export default connect(store => ({
-  userState: store.userState,
-  todos: store.todos
-}), {
-  updateTodoDone,
-  deleteTodo,
-  addTodo,
-  // you could also add something else here
-  anotherAction (store) {
-    /**
-     * if your action handler does not call store.updateState();
-     * nothing will happen to the state
-     */
-    console.log(store);
+export default connect(
+  store => ({
+    userState: store.userState,
+    todos: store.todos
+  }),
+  {
+    updateTodoDone,
+    deleteTodo,
+    addTodo,
+    // you could also add something else here
+    anotherAction(store) {
+      /**
+       * if your action handler does not call store.updateState();
+       * nothing will happen to the state
+       */
+      console.log(store);
+    }
   }
-})(Todos);
+)(Todos);
 ```
 
 #### Callback on `store.updateStore`
@@ -277,7 +294,7 @@ The package itself does not care how you handle this, you can use `async/await` 
 **example code**
 
 ```js
-function myStateHandler (store, data) {
+function myStateHandler(store, data) {
   store.updateState({
     aState: {
       ...store.state.aState,
@@ -286,18 +303,18 @@ function myStateHandler (store, data) {
   });
 
   fetch('/somewhere')
-  .then(response => response.json())
-  .then(response => {
-    // do something with the response
+    .then(response => response.json())
+    .then(response => {
+      // do something with the response
 
-    store.updateState({
-      aState: {
-        ...store.state.aState,
-        loading: false,
-        data: { ...response.data }
-      }
+      store.updateState({
+        aState: {
+          ...store.state.aState,
+          loading: false,
+          data: { ...response.data }
+        }
+      });
     });
-  });
 }
 ```
 
