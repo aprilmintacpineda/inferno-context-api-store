@@ -1,45 +1,54 @@
+/** @format */
+
 import { Component } from 'inferno';
 import PropTypes from 'prop-types';
 import createInfernoContext from 'create-inferno-context';
 
 const StoreContext = createInfernoContext();
 
-const connect = (wantedState, wantedMutators) => WrappedComponent => class Connect extends Component {
-  dispatcher = (updateStore, storeState, action) => (...payload) => action(
-    {
-      state: { ...storeState },
-      updateStore
-    },
-    ...payload
-  )
+const connect = (wantedState, wantedMutators) => WrappedComponent =>
+  class Connect extends Component {
+    dispatcher = (updateStore, storeState, action) => (...payload) =>
+      action(
+        {
+          state: { ...storeState },
+          updateStore
+        },
+        ...payload
+      );
 
-  mapStateToProps = storeState => wantedState
-  ? wantedState({ ...storeState })
-  : {}
+    mapStateToProps = storeState => (wantedState ? wantedState({ ...storeState }) : {});
 
-  mapActionsToProps = (updateStore, storeState) => wantedMutators
-  ? Object.keys(wantedMutators)
-    .reduce((accumulatedMutators, mutator) => ({
-      ...accumulatedMutators,
-      [mutator]: this.dispatcher(updateStore, storeState, wantedMutators[mutator])
-    }), {})
-  : {}
+    mapActionsToProps = (updateStore, storeState) =>
+      wantedMutators
+        ? Object.keys(wantedMutators).reduce(
+            (accumulatedMutators, mutator) => ({
+              ...accumulatedMutators,
+              [mutator]: this.dispatcher(updateStore, storeState, wantedMutators[mutator])
+            }),
+            {}
+          )
+        : {};
 
-  render = () => (
-    <StoreContext.Consumer>
-      { context =>
-        <WrappedComponent
-          {...this.mapStateToProps(context.state)}
-          {...this.mapActionsToProps(context.updateStore, context.state)}
-          {...this.props} />
-      }
-    </StoreContext.Consumer>
-  )
-};
+    render = () => (
+      <StoreContext.Consumer>
+        {context => (
+          <WrappedComponent
+            {...this.mapStateToProps(context.state)}
+            {...this.mapActionsToProps(context.updateStore, context.state)}
+            {...this.props}
+          />
+        )}
+      </StoreContext.Consumer>
+    );
+  };
 
 class Provider extends Component {
   constructor (props) {
     super(props);
+
+    this.defferedState = {};
+    this.defferedStateChangeTimer = null;
 
     if (this.props.persist !== false) {
       const savedStore = this.props.persist.storage.getItem(
@@ -65,29 +74,42 @@ class Provider extends Component {
         JSON.stringify(this.state)
       );
     }
-  }
+  };
 
-  updateStore = (updatedState, callback) => {
-    this.setState({
-      ...this.state,
-      ...updatedState
-    }, () => {
-      this.persist();
-      if (callback) callback(this.state);
-    });
-  }
+  storeUpdater = callback =>
+    this.setState(
+      {
+        ...this.state,
+        ...this.defferedState
+      },
+      () => {
+        this.persist();
+        if (callback) callback(this.state);
+      }
+    );
 
   render = () => (
-    <StoreContext.Provider value={{
-      state: { ...this.state },
-      updateStore: (updatedStore, callback) => {
-        this.updateStore(updatedStore, callback);
-      }
-    }}>
+    <StoreContext.Provider
+      value={{
+        state: { ...this.state },
+        updateStore: (updatedStore, callback) => {
+          this.defferedState = {
+            ...this.defferedState,
+            ...updatedStore
+          };
+
+          if (this.defferedStateChangeTimer) {
+            clearTimeout(this.defferedStateChangeTimer);
+            this.defferedStateChangeTimer = null;
+          }
+
+          this.defferedStateChangeTimer = setTimeout(() => this.storeUpdater(callback), 20);
+        }
+      }}>
       {this.props.children}
     </StoreContext.Provider>
-  )
-};
+  );
+}
 
 Provider.propTypes = {
   children: PropTypes.element.isRequired,

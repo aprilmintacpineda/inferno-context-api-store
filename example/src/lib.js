@@ -92,10 +92,16 @@ var Provider = function (_Component2) {
     };
 
     _this2.updateStore = function (updatedState, callback) {
-      _this2.setState(_extends({}, _this2.state, updatedState), function () {
-        _this2.persist();
-        if (callback) callback(_this2.state);
-      });
+      function defferedSetState() {
+        var _this3 = this;
+
+        this.setState(_extends({}, this.state, updatedState), function () {
+          _this3.persist();
+          if (callback) callback(_this3.state);
+        });
+      }
+
+      setTimeout(defferedSetState, 1);
     };
 
     _this2.render = function () {
@@ -103,12 +109,16 @@ var Provider = function (_Component2) {
         'value': {
           state: _extends({}, _this2.state),
           updateStore: function updateStore(updatedStore, callback) {
+            _this2.defferedState = _extends({}, _this2.defferedState, updatedStore);
+
             _this2.updateStore(updatedStore, callback);
           }
         },
         children: _this2.props.children
       });
     };
+
+    _this2.defferedState = {};
 
     if (_this2.props.persist !== false) {
       var savedStore = _this2.props.persist.storage.getItem(_this2.props.persist.key || 'inferno-context-api-store');

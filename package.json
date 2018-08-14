@@ -5,8 +5,10 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "clear && npm run build && jest --coverage --updateSnapshot",
-    "build": "babel src --out-dir lib && cp lib/index.js example/src/lib.js",
-    "lint": "eslint src/**/*.js __tests__/**/*.js",
+    "build": "babel-node build.js",
+    "eslint": "eslint src/**/*.js __tests__/**/*.js --fix",
+    "prettier": "prettier \"src/**/*.js\" --write",
+    "lint": "npm run prettier && npm run eslint",
     "prepublish": "npm run build"
   },
   "repository": {
@@ -35,21 +37,29 @@
   "homepage": "https://github.com/aprilmintacpineda/inferno-context-api-store#readme",
   "dependencies": {
     "create-inferno-context": "^0.2.4",
-    "inferno": "^5.1.1",
+    "inferno": "^5.4.0",
     "mock-dom-resources": "^9.0.0",
     "prop-types": "^15.6.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-eslint": "^8.2.4",
-    "babel-plugin-inferno": "^5.0.1",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.6",
+    "babel-plugin-inferno": "^5.1.0",
+    "babel-plugin-minify-constant-folding": "^0.4.3",
+    "babel-plugin-minify-dead-code-elimination": "^0.4.3",
+    "babel-plugin-minify-flip-comparisons": "^0.4.3",
     "babel-plugin-syntax-jsx": "^6.18.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-minify-booleans": "^6.9.4",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-flow": "^6.23.0",
+    "babel-preset-minify": "^0.4.3",
     "babel-preset-react": "^6.24.1",
     "eslint": "^4.19.1",
-    "eslint-plugin-inferno": "^7.8.0"
+    "eslint-plugin-inferno": "^7.10.0",
+    "prettier": "^1.14.2",
+    "readdir-plus": "^1.1.0"
   }
 }
