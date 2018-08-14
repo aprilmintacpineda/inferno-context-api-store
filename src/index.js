@@ -47,9 +47,6 @@ class Provider extends Component {
   constructor (props) {
     super(props);
 
-    this.deferredState = {};
-    this.deferredStateChangeTimer = null;
-
     if (this.props.persist !== false) {
       const savedStore = this.props.persist.storage.getItem(
         this.props.persist.key || 'inferno-context-api-store'
@@ -76,34 +73,21 @@ class Provider extends Component {
     }
   };
 
-  storeUpdater = callback =>
-    this.setState(
-      {
-        ...this.state,
-        ...this.deferredState
-      },
-      () => {
-        this.persist();
-        if (callback) callback(this.state);
-      }
-    );
-
   render = () => (
     <StoreContext.Provider
       value={{
         state: { ...this.state },
         updateStore: (updatedStore, callback) => {
-          this.deferredState = {
-            ...this.deferredState,
-            ...updatedStore
-          };
-
-          if (this.deferredStateChangeTimer) {
-            clearTimeout(this.deferredStateChangeTimer);
-            this.deferredStateChangeTimer = null;
-          }
-
-          this.deferredStateChangeTimer = setTimeout(() => this.storeUpdater(callback), 20);
+          this.setState(
+            {
+              ...this.state,
+              ...updatedStore
+            },
+            () => {
+              this.persist();
+              if (callback) callback(this.state);
+            }
+          );
         }
       }}>
       {this.props.children}
