@@ -1,7 +1,6 @@
 /** @format */
 
 var babelCore = require('babel-core');
-var readDir = require('readdir-plus');
 var fs = require('fs');
 
 const transforms = [
@@ -23,42 +22,26 @@ const transforms = [
     babelCore.transform(content, {
       babelrc: false,
       presets: ['env', 'flow']
-    }),
-  content =>
-    babelCore.transform(content, {
-      babelrc: false,
-      presets: ['minify']
     })
 ];
 
-new Promise((resolve, reject) =>
-  readDir(__dirname + '/src/', { content: true }, (err, files) => {
-    if (err) {
-      reject(err);
-    } else {
-      resolve(files);
-    }
-  })
-)
-  .then(files => {
-    for (
-      let filesCopy = [].concat(files), file = filesCopy.shift();
-      Boolean(file);
-      file = filesCopy.shift()
-    ) {
-      if (file.extension !== '.js') continue;
-      let content = fs.readFileSync(file.path, 'utf8').toString();
+let content = fs.readFileSync('src/index.js', 'utf8').toString();
 
-      for (
-        let transformsCopy = [].concat(transforms), transform = transformsCopy.shift();
-        Boolean(transform);
-        transform = transformsCopy.shift()
-      ) {
-        const result = transform(content);
-        content = result.code;
-      }
+for (
+  let transformsCopy = [].concat(transforms), transform = transformsCopy.shift();
+  Boolean(transform);
+  transform = transformsCopy.shift()
+) {
+  const result = transform(content);
+  content = result.code;
+}
 
-      fs.writeFileSync(__dirname + '/lib/' + file.name, content, 'utf8');
-    }
-  })
-  .catch(err => console.error(err));
+fs.writeFileSync(__dirname + '/lib/index.js', content, 'utf8');
+fs.writeFileSync(
+  __dirname + '/lib/index.min.js',
+  babelCore.transform(content, {
+    babelrc: false,
+    presets: ['minify']
+  }).code,
+  'utf8'
+);
