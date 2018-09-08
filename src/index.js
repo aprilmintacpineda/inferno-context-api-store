@@ -1,10 +1,17 @@
 /** @format */
-
-import { Component } from 'inferno';
 import PropTypes from 'prop-types';
 import createInfernoContext from 'create-inferno-context';
+import { Component } from 'inferno';
 
 const StoreContext = createInfernoContext();
+let storeState = {};
+
+/**
+ * @return store's state.
+ */
+export function getStoreState () {
+  return { ...storeState };
+}
 
 /**
  *
@@ -13,22 +20,24 @@ const StoreContext = createInfernoContext();
  */
 export function connect (wantedState, wantedMutators) {
   function mapActionsToProps (updateStore, storeState) {
-    return wantedMutators
-      ? Object.keys(wantedMutators).reduce(
-          (accumulatedMutators, mutator) => ({
-            ...accumulatedMutators,
-            [mutator]: (...payload) =>
-              wantedMutators[mutator](
-                {
-                  state: storeState,
-                  updateStore
-                },
-                ...payload
-              )
-          }),
-          {}
-        )
-      : {};
+    if (Boolean(wantedMutators)) {
+      return Object.keys(wantedMutators).reduce(
+        (accumulatedMutators, mutator) => ({
+          ...accumulatedMutators,
+          [mutator]: (...payload) =>
+            wantedMutators[mutator](
+              {
+                state: storeState,
+                updateStore
+              },
+              ...payload
+            )
+        }),
+        {}
+      );
+    }
+
+    return {};
   }
 
   function mapStateToProps (storeState) {
@@ -52,7 +61,11 @@ export default class Provider extends Component {
   constructor (props) {
     super(props);
 
-    if (this.props.persist !== false) {
+    this.state = {
+      count: 0
+    };
+
+    if (typeof this.props.persist === 'object') {
       const savedStore = this.props.persist.storage.getItem(
         this.props.persist.key || 'inferno-context-api-store'
       );
@@ -60,19 +73,19 @@ export default class Provider extends Component {
       const persistedState = this.props.persist.statesToPersist(JSON.parse(savedStore) || {});
       this.persistedStateKeys = Object.keys(persistedState);
 
-      this.state = {
+      storeState = {
         ...this.props.store,
         ...persistedState
       };
 
       this.persist();
     } else {
-      this.state = { ...this.props.store };
+      storeState = { ...this.props.store };
     }
   }
 
   persist = () => {
-    if (this.props.persist !== false) {
+    if (typeof this.props.persist === 'object') {
       this.props.persist.storage.removeItem(this.props.persist.key || 'inferno-context-api-store');
       this.props.persist.storage.setItem(
         this.props.persist.key || 'inferno-context-api-store',
@@ -80,7 +93,7 @@ export default class Provider extends Component {
           this.persistedStateKeys.reduce(
             (compiled, key) => ({
               ...compiled,
-              [key]: this.state[key]
+              [key]: storeState[key]
             }),
             {}
           )
@@ -92,18 +105,23 @@ export default class Provider extends Component {
   render = () => (
     <StoreContext.Provider
       value={{
-        state: { ...this.state },
+        state: { ...storeState },
         updateStore: (updatedStore, callback) => {
+          storeState = {
+            ...storeState,
+            ...updatedStore
+          };
+
           this.setState(
             {
-              ...this.state,
-              ...updatedStore
+              count: this.state.count + 1
             },
             () => {
-              this.persist();
-              if (callback) callback(this.state);
+              if (callback) callback(storeState);
             }
           );
+
+          this.persist();
         }
       }}>
       {this.props.children}

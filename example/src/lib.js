@@ -3,6 +3,10 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+exports.getStoreState = getStoreState;
 exports.connect = connect;
 
 var _inferno = require('inferno');
@@ -36,7 +40,16 @@ var _extends = Object.assign || function (target) {
 };
 /** @format */
 
+
 var StoreContext = (0, _createInfernoContext2.default)();
+var storeState = {};
+
+/**
+ * @return store's state.
+ */
+function getStoreState() {
+  return _extends({}, storeState);
+}
 
 /**
  *
@@ -45,18 +58,22 @@ var StoreContext = (0, _createInfernoContext2.default)();
  */
 function connect(wantedState, wantedMutators) {
   function mapActionsToProps(updateStore, storeState) {
-    return wantedMutators ? Object.keys(wantedMutators).reduce(function (accumulatedMutators, mutator) {
-      return _extends({}, accumulatedMutators, _defineProperty({}, mutator, function () {
-        for (var _len = arguments.length, payload = Array(_len), _key = 0; _key < _len; _key++) {
-          payload[_key] = arguments[_key];
-        }
+    if (Boolean(wantedMutators)) {
+      return Object.keys(wantedMutators).reduce(function (accumulatedMutators, mutator) {
+        return _extends({}, accumulatedMutators, _defineProperty({}, mutator, function () {
+          for (var _len = arguments.length, payload = Array(_len), _key = 0; _key < _len; _key++) {
+            payload[_key] = arguments[_key];
+          }
 
-        return wantedMutators[mutator].apply(wantedMutators, [{
-          state: storeState,
-          updateStore: updateStore
-        }].concat(payload));
-      }));
-    }, {}) : {};
+          return wantedMutators[mutator].apply(wantedMutators, [{
+            state: storeState,
+            updateStore: updateStore
+          }].concat(payload));
+        }));
+      }, {});
+    }
+
+    return {};
   }
 
   function mapStateToProps(storeState) {
@@ -83,10 +100,10 @@ var Provider = function (_Component) {
     var _this = _possibleConstructorReturn(this, (Provider.__proto__ || Object.getPrototypeOf(Provider)).call(this, props));
 
     _this.persist = function () {
-      if (!1 !== _this.props.persist) {
+      if ('object' === _typeof(_this.props.persist)) {
         _this.props.persist.storage.removeItem(_this.props.persist.key || 'inferno-context-api-store');
         _this.props.persist.storage.setItem(_this.props.persist.key || 'inferno-context-api-store', JSON.stringify(_this.persistedStateKeys.reduce(function (compiled, key) {
-          return _extends({}, compiled, _defineProperty({}, key, _this.state[key]));
+          return _extends({}, compiled, _defineProperty({}, key, storeState[key]));
         }, {})));
       }
     };
@@ -94,29 +111,38 @@ var Provider = function (_Component) {
     _this.render = function () {
       return (0, _inferno.createComponentVNode)(2, StoreContext.Provider, {
         'value': {
-          state: _extends({}, _this.state),
+          state: _extends({}, storeState),
           updateStore: function updateStore(updatedStore, callback) {
-            _this.setState(_extends({}, _this.state, updatedStore), function () {
-              _this.persist();
-              if (callback) callback(_this.state);
+            storeState = _extends({}, storeState, updatedStore);
+
+            _this.setState({
+              count: _this.state.count + 1
+            }, function () {
+              if (callback) callback(storeState);
             });
+
+            _this.persist();
           }
         },
         children: _this.props.children
       });
     };
 
-    if (!1 !== _this.props.persist) {
+    _this.state = {
+      count: 0
+    };
+
+    if ('object' === _typeof(_this.props.persist)) {
       var savedStore = _this.props.persist.storage.getItem(_this.props.persist.key || 'inferno-context-api-store');
 
       var persistedState = _this.props.persist.statesToPersist(JSON.parse(savedStore) || {});
       _this.persistedStateKeys = Object.keys(persistedState);
 
-      _this.state = _extends({}, _this.props.store, persistedState);
+      storeState = _extends({}, _this.props.store, persistedState);
 
       _this.persist();
     } else {
-      _this.state = _extends({}, _this.props.store);
+      storeState = _extends({}, _this.props.store);
     }
     return _this;
   }
