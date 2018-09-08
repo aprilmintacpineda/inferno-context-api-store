@@ -4,7 +4,7 @@ import { Component } from 'inferno';
 import PropTypes from 'prop-types';
 import { connect } from '../lib';
 
-import { changeUsername } from '../store';
+import { changeUsername } from '../store/actions/username';
 
 class Home extends Component {
   render () {
