@@ -66,7 +66,7 @@ export default class Provider extends Component {
       count: 0
     };
 
-    if (typeof this.props.persist === 'object') {
+    if (this.props.persist) {
       const savedStore = this.props.persist.storage.getItem(
         this.props.persist.key || 'inferno-context-api-store'
       );
@@ -100,7 +100,7 @@ export default class Provider extends Component {
   };
 
   persist = () => {
-    if (typeof this.props.persist === 'object') {
+    if (this.props.persist) {
       this.props.persist.storage.removeItem(this.props.persist.key || 'inferno-context-api-store');
       this.props.persist.storage.setItem(
         this.props.persist.key || 'inferno-context-api-store',
@@ -129,7 +129,7 @@ export default class Provider extends Component {
             ...updatedStore
           };
 
-          if (typeof this.props.defer === 'number') {
+          if (this.props.defer) {
             // defer update so we only update as minimal as possible.
             this.timeout(() => {
               this.setState(
@@ -137,11 +137,10 @@ export default class Provider extends Component {
                   count: this.state.count + 1
                 },
                 () => {
+                  this.persist();
                   if (callback) callback(storeState);
                 }
               );
-
-              this.persist();
             }, this.props.defer);
           } else {
             // don't defer state
@@ -150,11 +149,10 @@ export default class Provider extends Component {
                 count: this.state.count + 1
               },
               () => {
+                this.persist();
                 if (callback) callback(storeState);
               }
             );
-
-            this.persist();
           }
         }
       }}>
@@ -163,22 +161,7 @@ export default class Provider extends Component {
   );
 }
 
-Provider.propTypes = {
-  children: PropTypes.element.isRequired,
-  store: PropTypes.object.isRequired,
-  persist: PropTypes.oneOfType([
-    PropTypes.shape({
-      storage: PropTypes.object.isRequired,
-      statesToPersist: PropTypes.func.isRequired,
-      saveInitialState: PropTypes.bool,
-      key: PropTypes.string
-    }),
-    PropTypes.oneOf([false])
-  ]),
-  defer: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf([false])]).isRequired
-};
-
 Provider.defaultProps = {
   persist: false,
-  defer: 100
+  defer: false
 };

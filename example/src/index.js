@@ -13,7 +13,6 @@ class App extends Component {
     return (
       <Provider
         store={store}
-        defer={false}
         persist={{
           storage: localStorage,
           statesToPersist (savedStore) {
