@@ -287,6 +287,18 @@ export default connect(
 
 `store.updateStore` has a second optional parameter which should be a `function` that will be run as callback of `setState`. This callback will receive the store's update state as it's only parameter. Please see [react's docs](https://reactjs.org/docs/react-component.html#setstate) about `setState`.
 
+#### Deferred state update
+
+When you update the store, the update is deferred to minimize the number of re-renders that your app is needs to do. By default, the update is deferred by `100ms`, you can change this to whatever you like (i.e., if you think `100ms` is too much, you can set it to a lower value) by providing the prop `defer` on the Provider like so:
+
+```jsx
+<Provider
+  defer={50}
+  // rest of the codes
+```
+
+The prop needs to be a number. However if you don't want this feature, you can turn it off by passing in `false` to the defer prop.
+
 ## getStoreState function
 
 If you want to get the state somewhere, for example in a function that get's called and is suppose to return something related to the global state. You can use the `getStoreState` function like so.
