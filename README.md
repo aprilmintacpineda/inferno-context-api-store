@@ -289,15 +289,15 @@ export default connect(
 
 #### Deferred state update
 
-When you update the store, the update is deferred to minimize the number of re-renders that your app is needs to do. By default, the update is deferred by `100ms`, you can change this to whatever you like (i.e., if you think `100ms` is too much, you can set it to a lower value) by providing the prop `defer` on the Provider like so:
+You can defer state by passing the prop `defer` like so:
 
 ```jsx
 <Provider
-  defer={50}
+  defer={100}
   // rest of the codes
 ```
 
-The prop needs to be a number. However if you don't want this feature, you can turn it off by passing in `false` to the defer prop.
+`defer` must be a number in milliseconds. Doing this would ensure minimal updates and more than one state update occured within the specified millisecond, you only update once. By default this feature is turned off.
 
 ## getStoreState function
 
