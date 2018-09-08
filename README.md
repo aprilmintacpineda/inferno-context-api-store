@@ -287,9 +287,9 @@ export default connect(
 
 `store.updateStore` has a second optional parameter which should be a `function` that will be run as callback of `setState`. This callback will receive the store's update state as it's only parameter. Please see [react's docs](https://reactjs.org/docs/react-component.html#setstate) about `setState`.
 
-#### Deferred state update
+#### Deferred update
 
-You can defer state by passing the prop `defer` like so:
+You can defer update by passing the prop `defer` like so:
 
 ```jsx
 <Provider
@@ -297,7 +297,7 @@ You can defer state by passing the prop `defer` like so:
   // rest of the codes
 ```
 
-`defer` must be a number in milliseconds. Doing this would ensure minimal updates and more than one state update occured within the specified millisecond, you only update once. By default this feature is turned off.
+`defer` must be a number in milliseconds. Doing this would ensure minimal updates when more than one state update occured within the specified millisecond, you only update once. By default this feature is turned off.
 
 ## getStoreState function
 
@@ -351,12 +351,21 @@ If you want to persist states, just provide a second property called `persist` w
 
 ```js
 {
-  storage: AsyncStorage, // the storage of where to save the state
+  storage: window.localStorage, // the storage of where to save the state
   statesToPersist: savedStore => {
-    // do whatever you need to do here
-    // then return the states that you want to save.
-    // NOTE: This is not strict, meaning, you can even
-    // create a new state here and it will still be saved
+    /**
+     * savedStore is the going to be an object that was saved
+     * on the storage or an empty object if starting from scratch.
+     * Note that the store would only save whatever state you return
+     * here, the other states that were not returned here will not
+     * be saved.
+     *
+     * Do whatever you need to do here
+     * then return the states that you want to save.
+     * NOTE: This is not strict, meaning, you can even
+     * create a new state here that was not originally
+     * part of the store and it will still be saved
+     */
     return {
       someState: { ...savedStore.someState },
       anotherState: [ ...savedStore.anotherState ],
@@ -365,6 +374,8 @@ If you want to persist states, just provide a second property called `persist` w
   }
 }
 ```
+
+When the store is saving the state to the storage, it is also deferred by `100ms`, this is to ensure that the store only saves once in case the the state was updated multiple times within 100ms. This also allows other codes to execute.
 
 **example snippet**
 
