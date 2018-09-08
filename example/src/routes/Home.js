@@ -12,6 +12,7 @@ class Home extends Component {
       <div>
         <h1>Your username is: {this.props.userState.username}</h1>
         <p>I am using the persist feature to persist your username but not your todos.</p>
+        <p>In this demo, updates are deferred by 100ms</p>
         <input
           type="text"
           placeholder="change username..."
