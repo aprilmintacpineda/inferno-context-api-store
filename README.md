@@ -287,7 +287,22 @@ export default connect(
 
 `store.updateStore` has a second optional parameter which should be a `function` that will be run as callback of `setState`. This callback will receive the store's update state as it's only parameter. Please see [react's docs](https://reactjs.org/docs/react-component.html#setstate) about `setState`.
 
-## How to handle async actions?
+## getStoreState function
+
+If you want to get the state somewhere, for example in a function that get's called and is suppose to return something related to the global state. You can use the `getStoreState` function like so.
+
+```jsx
+import { getStoreState } from 'inferno-context-api-store';
+
+function getSomething() {
+  const storeState = getStoreState();
+  // rest of the code
+}
+```
+
+The function would return the store's updated state the moment it was called.
+
+## Async actions
 
 The package itself does not care how you handle this, you can use `async/await` if you like or stick to the chained `.then` of promises. But don't use generator functions as the store package was not equipped with it and supporting it is not an option because it would defeat the whole purpose of this library.
 
