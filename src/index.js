@@ -120,7 +120,7 @@ export default class Provider extends Component {
       value={{
         state: { ...storeState },
         updateStore: (updatedStore, callback) => {
-          if (this.timer) raf.cancel(this.timer);
+          if (this.updateTimeout) raf.cancel(this.updateTimeout);
 
           storeState = {
             ...storeState,
@@ -143,11 +143,11 @@ export default class Provider extends Component {
                   }
                 );
               } else {
-                this.timer = raf(tick);
+                this.updateTimeout = raf(tick);
               }
             };
 
-            this.timer = raf(tick);
+            this.updateTimeout = raf(tick);
           } else {
             // don't defer state
             this.setState(
