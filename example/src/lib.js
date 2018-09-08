@@ -135,8 +135,19 @@ var Provider = function (_Component) {
 
             storeState = _extends({}, storeState, updatedStore);
 
-            // defer update so we only update as minimal as possible.
-            _this.timeout(function () {
+            if ('number' === typeof _this.props.defer) {
+              // defer update so we only update as minimal as possible.
+              _this.timeout(function () {
+                _this.setState({
+                  count: _this.state.count + 1
+                }, function () {
+                  if (callback) callback(storeState);
+                });
+
+                _this.persist();
+              }, _this.props.defer);
+            } else {
+              // don't defer state
               _this.setState({
                 count: _this.state.count + 1
               }, function () {
@@ -144,7 +155,7 @@ var Provider = function (_Component) {
               });
 
               _this.persist();
-            }, 100);
+            }
           }
         },
         children: _this.props.children
@@ -184,9 +195,11 @@ Provider.propTypes = {
     statesToPersist: _propTypes2.default.func.isRequired,
     saveInitialState: _propTypes2.default.bool,
     key: _propTypes2.default.string
-  }), _propTypes2.default.oneOf([!1])])
+  }), _propTypes2.default.oneOf([!1])]),
+  defer: _propTypes2.default.oneOfType([_propTypes2.default.number, _propTypes2.default.oneOf([!1])]).isRequired
 };
 
 Provider.defaultProps = {
-  persist: !1
+  persist: !1,
+  defer: 100
 };

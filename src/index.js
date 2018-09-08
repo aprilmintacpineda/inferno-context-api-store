@@ -129,8 +129,22 @@ export default class Provider extends Component {
             ...updatedStore
           };
 
-          // defer update so we only update as minimal as possible.
-          this.timeout(() => {
+          if (typeof this.props.defer === 'number') {
+            // defer update so we only update as minimal as possible.
+            this.timeout(() => {
+              this.setState(
+                {
+                  count: this.state.count + 1
+                },
+                () => {
+                  if (callback) callback(storeState);
+                }
+              );
+
+              this.persist();
+            }, this.props.defer);
+          } else {
+            // don't defer state
             this.setState(
               {
                 count: this.state.count + 1
@@ -141,7 +155,7 @@ export default class Provider extends Component {
             );
 
             this.persist();
-          }, 100);
+          }
         }
       }}>
       {this.props.children}
@@ -160,9 +174,11 @@ Provider.propTypes = {
       key: PropTypes.string
     }),
     PropTypes.oneOf([false])
-  ])
+  ]),
+  defer: PropTypes.oneOfType([PropTypes.number, PropTypes.oneOf([false])]).isRequired
 };
 
 Provider.defaultProps = {
-  persist: false
+  persist: false,
+  defer: 100
 };

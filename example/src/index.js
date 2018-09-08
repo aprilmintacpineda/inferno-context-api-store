@@ -1,3 +1,5 @@
+/** @format */
+
 import { render, Component } from 'inferno';
 import { HashRouter, Route, Link, Switch } from 'inferno-router';
 import Provider from './lib';
@@ -9,14 +11,17 @@ import store from './store';
 class App extends Component {
   render () {
     return (
-      <Provider store={store} persist={{
-        storage: localStorage,
-        statesToPersist (savedStore) {
-          return {
-            userState: savedStore.userState || store.userState
-          };
-        }
-      }}>
+      <Provider
+        store={store}
+        defer={false}
+        persist={{
+          storage: localStorage,
+          statesToPersist (savedStore) {
+            return {
+              userState: savedStore.userState || store.userState
+            };
+          }
+        }}>
         <HashRouter>
           <div>
             <ul>
@@ -28,9 +33,9 @@ class App extends Component {
               </li>
             </ul>
             <Switch>
-              {
-                routes.map((route, i) => <Route key={i} {...route} />)
-              }
+              {routes.map((route, i) => (
+                <Route key={i} {...route} />
+              ))}
             </Switch>
           </div>
         </HashRouter>
@@ -39,7 +44,4 @@ class App extends Component {
   }
 }
 
-render(
-  <App />,
-  document.querySelector('#app')
-);
+render(<App />, document.querySelector('#app'));
