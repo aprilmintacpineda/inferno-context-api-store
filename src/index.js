@@ -1,5 +1,4 @@
 /** @format */
-import PropTypes from 'prop-types';
 import createInfernoContext from 'create-inferno-context';
 import { Component } from 'inferno';
 import raf from 'raf';
@@ -85,35 +84,34 @@ export default class Provider extends Component {
     }
   }
 
-  timeout = (callback, ms) => {
-    const tick = () => {
-      if (Date.now() >= callTime) {
-        callback();
-      } else {
-        this.timer = raf(tick);
-      }
-    };
-
-    const callTime = Date.now() + ms;
-
-    this.timer = raf(tick);
-  };
-
   persist = () => {
     if (this.props.persist) {
-      this.props.persist.storage.removeItem(this.props.persist.key || 'inferno-context-api-store');
-      this.props.persist.storage.setItem(
-        this.props.persist.key || 'inferno-context-api-store',
-        JSON.stringify(
-          this.persistedStateKeys.reduce(
-            (compiled, key) => ({
-              ...compiled,
-              [key]: storeState[key]
-            }),
-            {}
-          )
-        )
-      );
+      if (this.persistTimeout) raf.cancel(this.persistTimeout);
+
+      const callTime = Date.now() + 100;
+      const tick = () => {
+        if (Date.now() >= callTime) {
+          this.props.persist.storage.removeItem(
+            this.props.persist.key || 'inferno-context-api-store'
+          );
+          this.props.persist.storage.setItem(
+            this.props.persist.key || 'inferno-context-api-store',
+            JSON.stringify(
+              this.persistedStateKeys.reduce(
+                (compiled, key) => ({
+                  ...compiled,
+                  [key]: storeState[key]
+                }),
+                {}
+              )
+            )
+          );
+        } else {
+          this.persistTimeout = raf(tick);
+        }
+      };
+
+      this.persistTimeout = raf(tick);
     }
   };
 
@@ -131,17 +129,25 @@ export default class Provider extends Component {
 
           if (this.props.defer) {
             // defer update so we only update as minimal as possible.
-            this.timeout(() => {
-              this.setState(
-                {
-                  count: this.state.count + 1
-                },
-                () => {
-                  this.persist();
-                  if (callback) callback(storeState);
-                }
-              );
-            }, this.props.defer);
+            const callTime = Date.now() + this.props.defer;
+
+            const tick = () => {
+              if (Date.now() >= callTime) {
+                this.setState(
+                  {
+                    count: this.state.count + 1
+                  },
+                  () => {
+                    this.persist();
+                    if (callback) callback(storeState);
+                  }
+                );
+              } else {
+                this.timer = raf(tick);
+              }
+            };
+
+            this.timer = raf(tick);
           } else {
             // don't defer state
             this.setState(
