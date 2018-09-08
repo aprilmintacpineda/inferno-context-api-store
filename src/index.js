@@ -6,44 +6,49 @@ import createInfernoContext from 'create-inferno-context';
 
 const StoreContext = createInfernoContext();
 
-const connect = (wantedState, wantedMutators) => WrappedComponent =>
-  class Connect extends Component {
-    dispatcher = (updateStore, storeState, action) => (...payload) =>
-      action(
-        {
-          state: { ...storeState },
-          updateStore
-        },
-        ...payload
-      );
+/**
+ *
+ * @param {Function} wantedState a function that will accept the store's current state.
+ * @param {Object} wantedMutators object that would have methods which would become the actions that you can dispatch to update the store's state.
+ */
+export function connect (wantedState, wantedMutators) {
+  function mapActionsToProps (updateStore, storeState) {
+    return wantedMutators
+      ? Object.keys(wantedMutators).reduce(
+          (accumulatedMutators, mutator) => ({
+            ...accumulatedMutators,
+            [mutator]: (...payload) =>
+              wantedMutators[mutator](
+                {
+                  state: storeState,
+                  updateStore
+                },
+                ...payload
+              )
+          }),
+          {}
+        )
+      : {};
+  }
 
-    mapStateToProps = storeState => (wantedState ? wantedState({ ...storeState }) : {});
+  function mapStateToProps (storeState) {
+    return wantedState ? wantedState(storeState) : {};
+  }
 
-    mapActionsToProps = (updateStore, storeState) =>
-      wantedMutators
-        ? Object.keys(wantedMutators).reduce(
-            (accumulatedMutators, mutator) => ({
-              ...accumulatedMutators,
-              [mutator]: this.dispatcher(updateStore, storeState, wantedMutators[mutator])
-            }),
-            {}
-          )
-        : {};
+  return WrappedComponent => props => (
+    <StoreContext.Consumer>
+      {context => (
+        <WrappedComponent
+          {...mapStateToProps({ ...context.state })}
+          {...mapActionsToProps(context.updateStore, { ...context.state })}
+          {...props}
+        />
+      )}
+    </StoreContext.Consumer>
+  );
+}
 
-    render = () => (
-      <StoreContext.Consumer>
-        {context => (
-          <WrappedComponent
-            {...this.mapStateToProps(context.state)}
-            {...this.mapActionsToProps(context.updateStore, context.state)}
-            {...this.props}
-          />
-        )}
-      </StoreContext.Consumer>
-    );
-  };
-
-class Provider extends Component {
+export default class Provider extends Component {
   constructor (props) {
     super(props);
 
@@ -52,9 +57,12 @@ class Provider extends Component {
         this.props.persist.key || 'inferno-context-api-store'
       );
 
+      const persistedState = this.props.persist.statesToPersist(JSON.parse(savedStore) || {});
+      this.persistedStateKeys = Object.keys(persistedState);
+
       this.state = {
         ...this.props.store,
-        ...this.props.persist.statesToPersist(JSON.parse(savedStore) || {})
+        ...persistedState
       };
 
       this.persist();
@@ -68,7 +76,15 @@ class Provider extends Component {
       this.props.persist.storage.removeItem(this.props.persist.key || 'inferno-context-api-store');
       this.props.persist.storage.setItem(
         this.props.persist.key || 'inferno-context-api-store',
-        JSON.stringify(this.state)
+        JSON.stringify(
+          this.persistedStateKeys.reduce(
+            (compiled, key) => ({
+              ...compiled,
+              [key]: this.state[key]
+            }),
+            {}
+          )
+        )
       );
     }
   };
@@ -112,6 +128,3 @@ Provider.propTypes = {
 Provider.defaultProps = {
   persist: false
 };
-
-export { connect };
-export default Provider;

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.connect = undefined;
+exports.connect = connect;
 
 var _inferno = require('inferno');
 
@@ -17,13 +17,13 @@ var _createInfernoContext2 = _interopRequireDefault(_createInfernoContext);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var _extends = Object.assign || function (target) {
   for (var i = 1; i < arguments.length; i++) {
@@ -38,99 +38,94 @@ var _extends = Object.assign || function (target) {
 
 var StoreContext = (0, _createInfernoContext2.default)();
 
-var connect = function connect(wantedState, wantedMutators) {
-  return function (WrappedComponent) {
-    return function (_Component) {
-      _inherits(_class, _Component);
-
-      function _class() {
-        var _ref;
-
-        var _this, _ret;
-
-        _classCallCheck(this, _class);
-
-        var _temp;
-
-        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
+/**
+ *
+ * @param {Function} wantedState a function that will accept the store's current state.
+ * @param {Object} wantedMutators object that would have methods which would become the actions that you can dispatch to update the store's state.
+ */
+function connect(wantedState, wantedMutators) {
+  function mapActionsToProps(updateStore, storeState) {
+    return wantedMutators ? Object.keys(wantedMutators).reduce(function (accumulatedMutators, mutator) {
+      return _extends({}, accumulatedMutators, _defineProperty({}, mutator, function () {
+        for (var _len = arguments.length, payload = Array(_len), _key = 0; _key < _len; _key++) {
+          payload[_key] = arguments[_key];
         }
 
-        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = _class.__proto__ || Object.getPrototypeOf(_class)).call.apply(_ref, [this].concat(args))), _this), _this.dispatcher = function (updateStore, storeState, action) {
-          return function () {
-            for (var _len2 = arguments.length, payload = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-              payload[_key2] = arguments[_key2];
-            }
+        return wantedMutators[mutator].apply(wantedMutators, [{
+          state: storeState,
+          updateStore: updateStore
+        }].concat(payload));
+      }));
+    }, {}) : {};
+  }
 
-            return action.apply(undefined, [{
-              state: _extends({}, storeState),
-              updateStore: updateStore
-            }].concat(payload));
-          };
-        }, _this.mapStateToProps = function (storeState) {
-          return wantedState ? wantedState(_extends({}, storeState)) : {};
-        }, _this.mapActionsToProps = function (updateStore, storeState) {
-          return wantedMutators ? Object.keys(wantedMutators).reduce(function (accumulatedMutators, mutator) {
-            return _extends({}, accumulatedMutators, _defineProperty({}, mutator, _this.dispatcher(updateStore, storeState, wantedMutators[mutator])));
-          }, {}) : {};
-        }, _this.render = function () {
-          return (0, _inferno.createComponentVNode)(2, StoreContext.Consumer, {
-            children: function children(context) {
-              return (0, _inferno.normalizeProps)((0, _inferno.createComponentVNode)(2, WrappedComponent, _extends({}, _this.mapStateToProps(context.state), _this.mapActionsToProps(context.updateStore, context.state), _this.props)));
-            }
-          });
-        }, _temp), _possibleConstructorReturn(_this, _ret);
-      }
+  function mapStateToProps(storeState) {
+    return wantedState ? wantedState(storeState) : {};
+  }
 
-      return _class;
-    }(_inferno.Component);
+  return function (WrappedComponent) {
+    return function (props) {
+      return (0, _inferno.createComponentVNode)(2, StoreContext.Consumer, {
+        children: function children(context) {
+          return (0, _inferno.normalizeProps)((0, _inferno.createComponentVNode)(2, WrappedComponent, _extends({}, mapStateToProps(_extends({}, context.state)), mapActionsToProps(context.updateStore, _extends({}, context.state)), props)));
+        }
+      });
+    };
   };
-};
+}
 
-var Provider = function (_Component2) {
-  _inherits(Provider, _Component2);
+var Provider = function (_Component) {
+  _inherits(Provider, _Component);
 
   function Provider(props) {
     _classCallCheck(this, Provider);
 
-    var _this2 = _possibleConstructorReturn(this, (Provider.__proto__ || Object.getPrototypeOf(Provider)).call(this, props));
+    var _this = _possibleConstructorReturn(this, (Provider.__proto__ || Object.getPrototypeOf(Provider)).call(this, props));
 
-    _this2.persist = function () {
-      if (!1 !== _this2.props.persist) {
-        _this2.props.persist.storage.removeItem(_this2.props.persist.key || 'inferno-context-api-store');
-        _this2.props.persist.storage.setItem(_this2.props.persist.key || 'inferno-context-api-store', JSON.stringify(_this2.state));
+    _this.persist = function () {
+      if (!1 !== _this.props.persist) {
+        _this.props.persist.storage.removeItem(_this.props.persist.key || 'inferno-context-api-store');
+        _this.props.persist.storage.setItem(_this.props.persist.key || 'inferno-context-api-store', JSON.stringify(_this.persistedStateKeys.reduce(function (compiled, key) {
+          return _extends({}, compiled, _defineProperty({}, key, _this.state[key]));
+        }, {})));
       }
     };
 
-    _this2.render = function () {
+    _this.render = function () {
       return (0, _inferno.createComponentVNode)(2, StoreContext.Provider, {
         'value': {
-          state: _extends({}, _this2.state),
+          state: _extends({}, _this.state),
           updateStore: function updateStore(updatedStore, callback) {
-            _this2.setState(_extends({}, _this2.state, updatedStore), function () {
-              _this2.persist();
-              if (callback) callback(_this2.state);
+            _this.setState(_extends({}, _this.state, updatedStore), function () {
+              _this.persist();
+              if (callback) callback(_this.state);
             });
           }
         },
-        children: _this2.props.children
+        children: _this.props.children
       });
     };
 
-    if (!1 !== _this2.props.persist) {
-      var savedStore = _this2.props.persist.storage.getItem(_this2.props.persist.key || 'inferno-context-api-store');
+    if (!1 !== _this.props.persist) {
+      var savedStore = _this.props.persist.storage.getItem(_this.props.persist.key || 'inferno-context-api-store');
 
-      _this2.state = _extends({}, _this2.props.store, _this2.props.persist.statesToPersist(JSON.parse(savedStore) || {}));
+      var persistedState = _this.props.persist.statesToPersist(JSON.parse(savedStore) || {});
+      _this.persistedStateKeys = Object.keys(persistedState);
 
-      _this2.persist();
+      _this.state = _extends({}, _this.props.store, persistedState);
+
+      _this.persist();
     } else {
-      _this2.state = _extends({}, _this2.props.store);
+      _this.state = _extends({}, _this.props.store);
     }
-    return _this2;
+    return _this;
   }
 
   return Provider;
 }(_inferno.Component);
+
+exports.default = Provider;
+
 
 Provider.propTypes = {
   children: _propTypes2.default.element.isRequired,
@@ -146,6 +141,3 @@ Provider.propTypes = {
 Provider.defaultProps = {
   persist: !1
 };
-
-exports.connect = connect;
-exports.default = Provider;

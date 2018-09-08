@@ -1,3 +1,5 @@
+/** @format */
+
 import { Component } from 'inferno';
 import PropTypes from 'prop-types';
 import { connect } from '../lib';
@@ -15,21 +17,19 @@ class Home extends Component {
           placeholder="change username..."
           onInput={e => this.props.changeUsername(e.target.value)}
         />
-        {
-          this.props.todos.map((todo, i) =>
-            <div key={i} style={{ marginBottom: '10px' }}>
-              <label>
-                {
-                  todo.isDone?
-                    <span style={{ color: 'red', textDecoration: 'line-through' }}>
-                      <span style={{ color: 'gray' }}>{todo.value}</span>
-                    </span>
-                  : <span>{todo.value}</span>
-                }
-              </label>
-            </div>
-          )
-        }
+        {this.props.todos.map((todo, i) => (
+          <div key={i} style={{ marginBottom: '10px' }}>
+            <label>
+              {todo.isDone ? (
+                <span style={{ color: 'red', textDecoration: 'line-through' }}>
+                  <span style={{ color: 'gray' }}>{todo.value}</span>
+                </span>
+              ) : (
+                <span>{todo.value}</span>
+              )}
+            </label>
+          </div>
+        ))}
       </div>
     );
   }
@@ -41,9 +41,12 @@ Home.propTypes = {
   todos: PropTypes.array.isRequired
 };
 
-export default connect(store => ({
-  userState: store.userState,
-  todos: store.todos
-}), {
-  changeUsername
-})(Home);
+export default connect(
+  store => ({
+    userState: store.userState,
+    todos: store.todos
+  }),
+  {
+    changeUsername
+  }
+)(Home);
