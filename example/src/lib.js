@@ -19,6 +19,10 @@ var _createInfernoContext = require('create-inferno-context');
 
 var _createInfernoContext2 = _interopRequireDefault(_createInfernoContext);
 
+var _raf = require('raf');
+
+var _raf2 = _interopRequireDefault(_raf);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -99,6 +103,20 @@ var Provider = function (_Component) {
 
     var _this = _possibleConstructorReturn(this, (Provider.__proto__ || Object.getPrototypeOf(Provider)).call(this, props));
 
+    _this.timeout = function (callback, ms) {
+      var tick = function tick() {
+        if (Date.now() >= callTime) {
+          callback();
+        } else {
+          _this.timer = (0, _raf2.default)(tick);
+        }
+      };
+
+      var callTime = Date.now() + ms;
+
+      _this.timer = (0, _raf2.default)(tick);
+    };
+
     _this.persist = function () {
       if ('object' === _typeof(_this.props.persist)) {
         _this.props.persist.storage.removeItem(_this.props.persist.key || 'inferno-context-api-store');
@@ -113,15 +131,20 @@ var Provider = function (_Component) {
         'value': {
           state: _extends({}, storeState),
           updateStore: function updateStore(updatedStore, callback) {
+            if (_this.timer) _raf2.default.cancel(_this.timer);
+
             storeState = _extends({}, storeState, updatedStore);
 
-            _this.setState({
-              count: _this.state.count + 1
-            }, function () {
-              if (callback) callback(storeState);
-            });
+            // defer update so we only update as minimal as possible.
+            _this.timeout(function () {
+              _this.setState({
+                count: _this.state.count + 1
+              }, function () {
+                if (callback) callback(storeState);
+              });
 
-            _this.persist();
+              _this.persist();
+            }, 100);
           }
         },
         children: _this.props.children

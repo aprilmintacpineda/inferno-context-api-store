@@ -2,6 +2,7 @@
 import PropTypes from 'prop-types';
 import createInfernoContext from 'create-inferno-context';
 import { Component } from 'inferno';
+import raf from 'raf';
 
 const StoreContext = createInfernoContext();
 let storeState = {};
@@ -84,6 +85,20 @@ export default class Provider extends Component {
     }
   }
 
+  timeout = (callback, ms) => {
+    const tick = () => {
+      if (Date.now() >= callTime) {
+        callback();
+      } else {
+        this.timer = raf(tick);
+      }
+    };
+
+    const callTime = Date.now() + ms;
+
+    this.timer = raf(tick);
+  };
+
   persist = () => {
     if (typeof this.props.persist === 'object') {
       this.props.persist.storage.removeItem(this.props.persist.key || 'inferno-context-api-store');
@@ -107,21 +122,26 @@ export default class Provider extends Component {
       value={{
         state: { ...storeState },
         updateStore: (updatedStore, callback) => {
+          if (this.timer) raf.cancel(this.timer);
+
           storeState = {
             ...storeState,
             ...updatedStore
           };
 
-          this.setState(
-            {
-              count: this.state.count + 1
-            },
-            () => {
-              if (callback) callback(storeState);
-            }
-          );
+          // defer update so we only update as minimal as possible.
+          this.timeout(() => {
+            this.setState(
+              {
+                count: this.state.count + 1
+              },
+              () => {
+                if (callback) callback(storeState);
+              }
+            );
 
-          this.persist();
+            this.persist();
+          }, 100);
         }
       }}>
       {this.props.children}

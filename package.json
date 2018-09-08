@@ -39,7 +39,8 @@
     "create-inferno-context": "^0.2.4",
     "inferno": "^5.4.2",
     "mock-dom-resources": "^9.0.0",
-    "prop-types": "^15.6.2"
+    "prop-types": "^15.6.2",
+    "raf": "^3.4.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
