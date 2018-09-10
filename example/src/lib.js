@@ -63,7 +63,7 @@ function connect(wantedState, definedMutators) {
           }
 
           return definedMutators[mutator].apply(definedMutators, [{
-            state: _extends({}, storeState),
+            getStoreState: getStoreState,
             updateStore: updateStore
           }].concat(payload));
         }));
