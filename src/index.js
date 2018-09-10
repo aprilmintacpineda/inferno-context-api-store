@@ -16,18 +16,18 @@ export function getStoreState () {
 /**
  *
  * @param {Function} wantedState a function that will accept the store's current state.
- * @param {Object} wantedMutators object that would have methods which would become the actions that you can dispatch to update the store's state.
+ * @param {Object} definedMutators object that would have methods which would become the actions that you can dispatch to update the store's state.
  */
-export function connect (wantedState, wantedMutators) {
-  function mapActionsToProps (updateStore, storeState) {
-    if (Boolean(wantedMutators)) {
-      return Object.keys(wantedMutators).reduce(
+export function connect (wantedState, definedMutators) {
+  function mapActionsToProps (updateStore) {
+    if (Boolean(definedMutators)) {
+      return Object.keys(definedMutators).reduce(
         (accumulatedMutators, mutator) => ({
           ...accumulatedMutators,
           [mutator]: (...payload) =>
-            wantedMutators[mutator](
+            definedMutators[mutator](
               {
-                state: storeState,
+                state: { ...storeState },
                 updateStore
               },
               ...payload
@@ -40,16 +40,16 @@ export function connect (wantedState, wantedMutators) {
     return {};
   }
 
-  function mapStateToProps (storeState) {
-    return wantedState ? wantedState(storeState) : {};
+  function mapStateToProps () {
+    return wantedState ? wantedState({ ...storeState }) : {};
   }
 
   return WrappedComponent => props => (
     <StoreContext.Consumer>
       {context => (
         <WrappedComponent
-          {...mapStateToProps({ ...context.state })}
-          {...mapActionsToProps(context.updateStore, { ...context.state })}
+          {...mapStateToProps()}
+          {...mapActionsToProps(context.updateStore)}
           {...props}
         />
       )}
@@ -118,7 +118,6 @@ export default class Provider extends Component {
   render = () => (
     <StoreContext.Provider
       value={{
-        state: { ...storeState },
         updateStore: (updatedStore, callback) => {
           if (this.updateTimeout) raf.cancel(this.updateTimeout);
 
@@ -139,7 +138,7 @@ export default class Provider extends Component {
                   },
                   () => {
                     this.persist();
-                    if (callback) callback(storeState);
+                    if (callback) callback({ ...storeState });
                   }
                 );
               } else {
@@ -156,7 +155,7 @@ export default class Provider extends Component {
               },
               () => {
                 this.persist();
-                if (callback) callback(storeState);
+                if (callback) callback({ ...storeState });
               }
             );
           }
