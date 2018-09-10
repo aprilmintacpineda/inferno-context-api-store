@@ -2,7 +2,7 @@
 
 export function updateTodoDone (store, isDone, targetValue, targetIndex) {
   store.updateStore({
-    todos: store.state.todos.map((todo, todoIndex) => {
+    todos: store.getStoreState().todos.map((todo, todoIndex) => {
       if (todo.value !== targetValue || todoIndex !== targetIndex) return todo;
 
       return {
@@ -15,9 +15,9 @@ export function updateTodoDone (store, isDone, targetValue, targetIndex) {
 
 export function deleteTodo (store, targetValue, targetIndex) {
   store.updateStore({
-    todos: store.state.todos.filter(
-      (todo, todoIndex) => todo.value !== targetValue || todoIndex !== targetIndex
-    )
+    todos: store
+      .getStoreState()
+      .todos.filter((todo, todoIndex) => todo.value !== targetValue || todoIndex !== targetIndex)
   });
 }
 
@@ -25,7 +25,7 @@ export function addTodo (store, value, callback) {
   store.updateStore(
     {
       todos: [
-        ...store.state.todos,
+        ...store.getStoreState().todos,
         {
           value,
           isDone: false

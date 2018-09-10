@@ -27,7 +27,7 @@ export function connect (wantedState, definedMutators) {
           [mutator]: (...payload) =>
             definedMutators[mutator](
               {
-                state: { ...storeState },
+                getStoreState,
                 updateStore
               },
               ...payload
