@@ -1,8 +1,8 @@
 <!-- @format -->
 
-# Repo status?
+# THIS PROJECT HAS BEEN ARCHIVED
 
-This library is actively being maintained by the developer. Feature requests, enhancements, and bug reports are all welcome to the issue section.
+Archived in favor of [inferno-fluxible](https://github.com/aprilmintacpineda/inferno-fluxible). Please migrate.
 
 # inferno-context-api-store
 
